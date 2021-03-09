@@ -1,5 +1,7 @@
 package model;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,9 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class FileHandling {
-
+private final Logger logger = Logger.getLogger(FileHandling.class);
 
     public HashMap<String, String> exportToHashMap(Path path) {
+        logger.debug("run export method for : "+ path.toString());
         HashMap<String, String> map = new HashMap<String, String>();
         try {
             BufferedReader bufferedReader = Files.newBufferedReader(path);
@@ -27,12 +30,14 @@ public class FileHandling {
                 line = bufferedReader.readLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("something went wrong ! please chexk if the "+path.toString() +"is available or not!"+"\r\n"+e.getMessage());
+
         }
         return map;
     }
 
     public Long sumCreditorAmount(HashMap<String, String> mapPardakht) {
+        logger.debug("run sumCredotir method ");
         Long sum = 0L;
 
         for (Map.Entry<String, String> entry : mapPardakht.entrySet()) {
@@ -44,6 +49,7 @@ public class FileHandling {
     }
 
     public boolean comparing(Long exist, Long required) {
+        logger.debug("run comparing method" );
         if (exist >= required) {
             return true;
         } else {
@@ -53,6 +59,7 @@ public class FileHandling {
     }
 
     public List<String> getDepositNumbD(HashMap<String, String> map) {
+        logger.debug("run get depositor  method for debtors");
         List<String> depositDList = new ArrayList<>();
         for (String s : map.keySet()) {
             if (s.contains("d")) {
@@ -63,6 +70,7 @@ public class FileHandling {
     }
 
     public List<String> getDepositeNumbC(HashMap<String, String> map) {
+        logger.debug("run get depositor  method for creditors");
         List<String> depositCList = new ArrayList<>();
         for (String s : map.keySet()) {
             if (s.contains("c")) {
@@ -73,6 +81,7 @@ public class FileHandling {
     }
 
     public String isPayable(HashMap mapPardakht, HashMap mapMojoodi) {
+        logger.debug("run isPayable method ");
         FileHandling fh = new FileHandling();
         Long required = sumCreditorAmount(mapPardakht);
         List<String> depositNumbD = fh.getDepositNumbD(mapPardakht);
@@ -88,6 +97,7 @@ public class FileHandling {
     }
 
     public String updateDAccounts(HashMap<String, String> mapPardakht, HashMap<String, String> mapMojoodi) {
+        logger.debug("run update  method for debtors in mojoodi.txt");
         String finalString = "";
         List<String> depositNumbD = getDepositNumbD(mapPardakht);
         Long required = sumCreditorAmount(mapPardakht);
@@ -115,6 +125,7 @@ public class FileHandling {
 
 
     public String updateCAccounts(HashMap<String, String> mapPardakht, HashMap<String, String> mapMojoodi) {
+        logger.debug("run update  method for creditors in mojoodi.txt");
         String finalString = "";
         //payable account
         String payable = isPayable(mapPardakht, mapMojoodi);
@@ -142,6 +153,7 @@ public class FileHandling {
     }
 
     public void writeUpdatedMount(String updatedString, Path pathMojoodi) {
+        logger.debug("run writeUpdated  method for write in mojoodi.txt");
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(pathMojoodi)) {
             bufferedWriter.write(updatedString);
         } catch (IOException e) {
@@ -150,11 +162,12 @@ public class FileHandling {
     }
 
     public void writeLog(String s) {
+        logger.debug("run writelog  method for write in log.txt");
         Path path = Paths.get("Files/log.txt");
         try {
             Files.write(path, s.getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("something went wrong ! please check if the log.txt is available or not!"+"\r\n"+e.getMessage());
         }
     }
 }
